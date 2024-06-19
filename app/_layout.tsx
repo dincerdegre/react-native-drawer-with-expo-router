@@ -1,35 +1,23 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-
-import { useColorScheme } from '@/components/useColorScheme';
-
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
-
-export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
-};
+import { useFonts } from "expo-font";
+import { Drawer } from "expo-router/drawer";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
+import "react-native-reanimated";
+import { AntDesign } from "@expo/vector-icons";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import HeaderRight from "@/components/HeaderRight";
+import DrawerProfile from "@/components/DrawerProfile";
+import profile from "../assets/images/profile/me.jpeg";
+import { SafeAreaView } from "react-native";
+import { DrawerItemList } from "@react-navigation/drawer";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-    ...FontAwesome.font,
+  const [loaded] = useFonts({
+    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
-
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
-  useEffect(() => {
-    if (error) throw error;
-  }, [error]);
 
   useEffect(() => {
     if (loaded) {
@@ -41,18 +29,62 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
-}
-
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Drawer
+        screenOptions={{
+          drawerPosition: "left",
+          drawerType: "front",
+          drawerStyle: {
+            width: "60%",
+          },
+          headerTintColor: "black",
+          headerRight: () => <HeaderRight />,
+        }}
+        drawerContent={(props) => (
+          <SafeAreaView>
+            <DrawerProfile
+              profilePicture={profile}
+              name={"Dinçer Değre"}
+              title={"Full Stack Developer"}
+            />
+            <DrawerItemList {...props} />
+          </SafeAreaView>
+        )}
+      >
+        <Drawer.Screen
+          name="index"
+          options={{
+            title: "Home",
+            headerShown: true,
+            headerTitle: "",
+            drawerActiveTintColor: "black",
+            drawerIcon: () => <AntDesign name="home" size={20} color="black" />,
+          }}
+        />
+        <Drawer.Screen
+          name="profile"
+          options={{
+            title: "Profile",
+            headerShown: true,
+            headerTitle: "",
+            drawerActiveTintColor: "black",
+            drawerIcon: () => <AntDesign name="user" size={20} color="black" />,
+          }}
+        />
+        <Drawer.Screen
+          name="settings"
+          options={{
+            title: "Settings",
+            headerShown: true,
+            headerTitle: "",
+            drawerActiveTintColor: "black",
+            drawerIcon: () => (
+              <AntDesign name="setting" size={20} color="black" />
+            ),
+          }}
+        />
+      </Drawer>
+    </GestureHandlerRootView>
   );
 }
